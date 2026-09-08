@@ -26,3 +26,10 @@ Security notes
 - Never commit real client secrets. Use environment variables, a secret store, or CI secrets.
 - Prefer app-only auth with least privilege. Do NOT disable MFA to make username/password auth work.
 - Username/password auth against SharePoint Online is discouraged and often blocked when MFA is enabled; stick to app registrations.
+
+
+Changelog
+2026-09-07 — Security hardening
+- Client ID, client secret, and site URL now come from required environment variables (no hardcoded secrets in source)
+- README no longer suggests disabling MFA; documents app-only least-privilege auth instead
+- Added .gitignore for .env and generated outputs
