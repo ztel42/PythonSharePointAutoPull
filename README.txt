@@ -1,23 +1,35 @@
 Overview
-This Python script connects to a SharePoint Online list, retrieves items added since the last check, and appends them to an Excel file while aiming to preserve the data types of the list fields. It uses the Office365-REST-Python-Client library for SharePoint access and pandas for Excel operations. You’ll need to set up authentication and provide specific details like your SharePoint site URL and list name.
+This Python script connects to a SharePoint Online list, retrieves items added since the last check, and appends them to an Excel file. It uses Office365-REST-Python-Client and pandas.
 
 Prerequisites
-Before running the script, ensure you have:
+- pip install Office365-REST-Python-Client pandas openpyxl
+- Azure AD app registration with least-privilege SharePoint permissions (for example Sites.Selected or Sites.Read.All as appropriate)
+- App-only client credentials (client ID + client secret or certificate). Prefer certificates in production.
 
-Installed the required Python libraries: pip install Office365-REST-Python-Client pandas openpyxl.
-Registered an app in Azure AD to obtain a client ID and client secret, with appropriate permissions (e.g., Sites.Read.All) for accessing the SharePoint list (Azure AD App Registration).
-The SharePoint site URL, list title, and a location to store the Excel file and last checked time.
+Required environment variables (do not hardcode secrets in source):
+  SHAREPOINT_CLIENT_ID
+  SHAREPOINT_CLIENT_SECRET
+  SHAREPOINT_SITE_URL
+
+Optional:
+  SHAREPOINT_LIST_TITLE (default YourListTitle)
+  SHAREPOINT_OUTPUT_XLSX (default output.xlsx)
+  SHAREPOINT_LAST_CHECKED_FILE (default last_checked.txt)
 
 How It Works
-The script:
+1. Reads last checked time from a local file
+2. Authenticates with SharePoint using client credentials from the environment
+3. Queries items created after that timestamp
+4. Appends rows to Excel and updates the last checked time
 
-Reads the last checked time from a text file to determine which entries are new.
-Authenticates with SharePoint using client credentials.
-Queries the list for items created after the last checked time.
-Collects data from these items, including all list fields.
-Appends the data to an existing Excel file or creates a new one.
-Updates the last checked time to the current time.
-Notes
-Replace placeholders (your_client_id, your_client_secret, etc.) with your actual credentials and SharePoint details.
-Complex field types (e.g., person or lookup fields) may appear as dictionaries in the Excel file, which you might need to process further.
-Ensure your SharePoint account does not use multi-factor authentication (MFA) if using username/password authentication, or use client credentials as shown.
+Security notes
+- Never commit real client secrets. Use environment variables, a secret store, or CI secrets.
+- Prefer app-only auth with least privilege. Do NOT disable MFA to make username/password auth work.
+- Username/password auth against SharePoint Online is discouraged and often blocked when MFA is enabled; stick to app registrations.
+
+
+Changelog
+2026-09-07 — Security hardening
+- Client ID, client secret, and site URL now come from required environment variables (no hardcoded secrets in source)
+- README no longer suggests disabling MFA; documents app-only least-privilege auth instead
+- Added .gitignore for .env and generated outputs
